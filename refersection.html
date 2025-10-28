@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refer & Earn | Need2Earn</title>
+  <link rel="stylesheet" href="global_style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: #0f172a;
+      color: #f1f5f9;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding-bottom: 70px; /* keep space for bottom nav */
+    }
+
+    header {
+      background: #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+      color: #f1f5f9;
+      margin: 0;
+    }
+
+    #header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .section {
+      padding: 20px;
+    }
+
+    .referral-box {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .referral-code {
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    .icon-btn img {
+      width: 22px;
+      height: 22px;
+      filter: invert(90%);
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .referral-list {
+      margin-top: 20px;
+    }
+
+    .referral-item {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    #claim-btn {
+      width: 100%;
+      padding: 12px;
+      background: #10b981;
+      color: #0f172a;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+
+    #claim-btn:hover {
+      transform: scale(1.05);
+      background: #22c55e;
+    }
+
+    #popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #3b82f6;
+      color: #f1f5f9;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 300;
+    }
+
+    #popup.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1e293b;
+      display: flex;
+      justify-content: space-around;
+      padding: 5px 0;
+      border-top: 1px solid #334155;
+    }
+
+    .bottom-nav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .bottom-nav a.active {
+      color: #3b82f6;
+    }
+
+    .bottom-nav a img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 3px;
+      
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="logo">NEED2EARN</h1>
+    <div id="header-right"></div>
+  </header>
+
+  <main class="section">
+    <div id="refer-info"></div>
+
+    <div class="referral-box">
+      <span id="ref-code" class="referral-code">Loading...</span>
+      <div>
+        <button class="icon-btn" id="copy-btn"><img src="icons/copy.png" alt="Copy"></button>
+        <button class="icon-btn" id="share-btn"><img src="icons/share.png" alt="Share"></button>
+      </div>
+    </div>
+
+    <div id="stats">
+      <div class="stat-card" id="total-earned">Total Earned from Referrals: ₹0</div>
+      <div class="stat-card" id="ref-balance">Referral Balance: ₹0</div>
+      <button id="claim-btn">Claim Referral Balance</button>
+    </div>
+
+    <div class="referral-list" id="referral-list">
+      <h3>Your Referred Users:</h3>
+      <p>Loading...</p>
+    </div>
+  </main>
+
+  <div id="popup"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><img src="icons/home.png" alt="Home"><span>Home</span></a>
+    <a href="wallet.html"><img src="icons/wallet.png" alt="Wallet"><span>Wallet</span></a>
+    <a href="profile.html"><img src="icons/user.png" alt="Profile"><span>Profile</span></a>
+    <a href="refersection.html" class="active"><img src="icons/users.png" alt="Refer"><span>Refer</span></a>
+  </nav>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://hkfixjnwzkghapljsxzg.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const popup = document.getElementById("popup");
+    const user = JSON.parse(localStorage.getItem("need2earn_user"));
+    const referInfo = document.getElementById("refer-info");
+    const refCodeEl = document.getElementById("ref-code");
+    const totalEarnedEl = document.getElementById("total-earned");
+    const refBalanceEl = document.getElementById("ref-balance");
+    const referralListEl = document.getElementById("referral-list");
+
+    function showPopup(msg, color = "#3b82f6") {
+      popup.textContent = msg;
+      popup.style.background = color;
+      popup.classList.add("show");
+      setTimeout(() => popup.classList.remove("show"), 2500);
+    }
+
+    async function loadReferralData() {
+      if (!user) {
+        referInfo.innerHTML = "<p>Please login to view referral info.</p>";
+        return;
+      }
+
+      const { data: udata, error } = await supabase.from("users")
+        .select("refer_code, referred_by, referral_balance, total_referral_earnings")
+        .eq("id", user.id)
+        .single();
+
+      if (error || !udata) return showPopup("Error loading referral info", "red");
+
+      referInfo.innerHTML = `
+        <p>You were referred by: <strong>${udata.referred_by || "—"}</strong></p>
+        <p>Invite friends and earn <strong>10%</strong> of their withdrawals!</p>
+      `;
+      refCodeEl.textContent = udata.refer_code;
+      refBalanceEl.textContent = "Referral Balance: ₹" + (udata.referral_balance ?? 0);
+      totalEarnedEl.textContent = "Total Earned from Referrals: ₹" + (udata.total_referral_earnings ?? 0);
+
+      const { data: referred } = await supabase
+        .from("users")
+        .select("mobile, total_balance")
+        .eq("referred_by", udata.refer_code);
+console.log("DEBUG -> refer_code:", udata.refer_code);
+console.log("DEBUG -> referred_by query results:", referred, error);
+
+      if (!referred || referred.length === 0) {
+        referralListEl.innerHTML = "<h3>Your Referred Users:</h3><p>No users yet.</p>";
+      } else {
+        let html = "<h3>Your Referred Users:</h3>";
+        referred.forEach(r => {
+          const commission = (r.total_balance || 0) * 0.1;
+          html += `
+            <div class='referral-item'>
+              <span>${r.mobile}</span>
+              <span>Total: ₹${r.total_balance ?? 0}</span>
+              <span>10%: ₹${commission.toFixed(2)}</span>
+            </div>`;
+        });
+        referralListEl.innerHTML = html;
+      }
+    }
+
+    document.getElementById("copy-btn").addEventListener("click", () => {
+      navigator.clipboard.writeText(refCodeEl.textContent);
+      showPopup("Referral code copied!");
+    });
+
+    document.getElementById("share-btn").addEventListener("click", () => {
+      const link = `https://need2earn.com/signup.html?ref=${refCodeEl.textContent}`;
+      navigator.clipboard.writeText(link);
+      showPopup("Referral link copied!");
+    });
+
+    document.getElementById("claim-btn").addEventListener("click", async () => {
+      const { error } = await supabase.rpc("claim_referral_balance", { p_user_id: user.id });
+      if (error) return showPopup(error.message, "red");
+      showPopup("Referral balance claimed successfully!");
+      loadReferralData();
+    });
+
+    loadReferralData();
+  </script>
+</body>
+</html>

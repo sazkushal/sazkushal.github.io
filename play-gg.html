@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Notification Overload - Swipe Game</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:focus{outline:none;box-shadow:none;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:linear-gradient(180deg,#0f1724,#071022);
+  color:#e6eef8;
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:0.5rem;
+}
+.container{width:100%;max-width:24rem;position:relative;}
+.glass{
+  background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:14px;padding:14px;margin-bottom:8px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.5);
+}
+.start-screen{text-align:center;}
+.icon-large{width:56px;height:56px;margin:0 auto 10px;display:block;color:#d1f5e1}
+h1{font-size:1.4rem;margin-bottom:4px}
+.subtitle{color:#9aa6b2;margin-bottom:12px;font-size:0.9rem}
+.btn{display:inline-block;padding:10px 12px;border-radius:8px;font-weight:700;cursor:pointer;border:0;width:100%}
+.btn-primary{background:#10b981;color:#04121b}
+.btn-secondary{background:#f59e0b;color:#071022;margin-top:8px}
+.stats{display:flex;gap:6px;margin:10px 0}
+.stat-card{flex:1;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;text-align:center}
+.stat-label{font-size:0.8rem;color:#9aa6b2}
+.stat-value{font-size:1.1rem;font-weight:800}
+.card-container{position:relative;height:300px;margin-bottom:10px;touch-action:none}
+.notification-card{
+  position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:100%;background:linear-gradient(135deg,#111827,#0b1220);
+  border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  cursor:grab;user-select:none;
+  transition:transform .18s ease,opacity .18s;
+}
+.card-content{display:flex;gap:10px;align-items:flex-start}
+.card-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.icon-spam{background:rgba(239,68,68,0.14);color:#ffb4b4}
+.icon-important{background:rgba(16,185,129,0.14);color:#b9ffd3}
+.card-body{flex:1;min-width:0}
+.card-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.95rem}
+.card-time{font-size:0.75rem;color:#9aa6b2}
+.card-message{color:#9aa6b2;margin-top:4px;font-size:0.85rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.controls{display:flex;gap:8px;margin-top:6px}
+.btn-spam{flex:1;background:#ef4444;color:#fff;padding:10px;border-radius:8px}
+.btn-important{flex:1;background:#16a34a;color:#fff;padding:10px;border-radius:8px}
+.game-over{text-align:center}
+.score-display{font-size:2rem;color:#10b981;font-weight:900;margin-bottom:4px}
+.small-muted{font-size:0.85rem;color:#9aa6b2}
+.footer-credits{font-size:0.75rem;color:#7f8b95;text-align:center;margin-top:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.ad-blocks {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 8px 0;
+}
+
+.ad-card {
+  flex: 1 1 calc(50% - 10px);
+  height: 60px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 150px;
+}
+
+</style>
+<script type='text/javascript' src='//pl27937614.effectivegatecpm.com/7b/32/34/7b3234fa783827eea2c99b508e1a24f6.js'></script>
+</head>
+<body>
+<div class="container">
+
+  <!-- 🔹 Top Ads -->
+  <div class="glass ad-blocks">
+    <div class="ad-card"><!-- Ad Script 1 here --><script type="text/javascript">
+	atOptions = {
+		'key' : '7dce2e27c232b1c9b642087f086625c7',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/7dce2e27c232b1c9b642087f086625c7/invoke.js"></script></div><br>
+    <div class="ad-card"><!-- Ad Script 2 here --><script type="text/javascript">
+	atOptions = {
+		'key' : '7dce2e27c232b1c9b642087f086625c7',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/7dce2e27c232b1c9b642087f086625c7/invoke.js"></script></div>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="glass start-screen">
+    <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341" />
+      <path d="M7 17v1a3 3 0 006 0v-1" />
+    </svg>
+    <h1>Notification Overload</h1>
+    <p class="subtitle">Swipe left for spam, right for important</p>
+    <button id="startBtn" class="btn btn-primary">Start Game</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen" class="glass" style="display:none;">
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Score</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Lives</div>
+        <div class="stat-value" id="lives">❤️❤️❤️</div>
+      </div>
+    </div>
+
+    <div class="card-container" id="cardContainer">
+      <div id="notificationCard" class="notification-card">
+        <div class="card-content">
+          <div id="cardIcon" class="card-icon icon-important">🔔</div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="card-title" id="cardTitle">Title</div>
+              <div class="card-time" id="cardTime">2m ago</div>
+            </div>
+            <div class="card-message" id="cardMessage">Message text</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-spam" id="btnSpam">Spam</button>
+      <button class="btn-important" id="btnImportant">Important</button>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <div id="gameOverScreen" class="glass game-over" style="display:none;">
+    <h2>Game Over!</h2>
+    <div class="score-display" id="finalScore">0</div>
+    <p class="small-muted" id="finalStats">You sorted ...</p>
+    <p class="small-muted" id="conversionMsg"></p>
+    <button id="playAgain" class="btn btn-primary" style="margin-top:8px;">Play Again</button>
+  </div>
+
+  <!-- 🔹 Bottom Ads -->
+  <div class="glass ad-blocks">
+    <div class="ad-card"><!-- Ad Script 3 here --><script type="text/javascript">
+	atOptions = {
+		'key' : '7dce2e27c232b1c9b642087f086625c7',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/7dce2e27c232b1c9b642087f086625c7/invoke.js"></script></div>
+    <div class="ad-card"><!-- Ad Script 4 here --><script type="text/javascript">
+	atOptions = {
+		'key' : '7dce2e27c232b1c9b642087f086625c7',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/7dce2e27c232b1c9b642087f086625c7/invoke.js"></script></div>
+  </div>
+
+  <div class="footer-credits">1100 Points = 1 Balance</div>
+</div>
+
+
+
+
+
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// ✅ Supabase setup
+const SUPABASE_URL = "https://hkfixjnwzkghapljsxzg.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ✅ DOM references
+const startBtn = document.getElementById('startBtn');
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const cardTitle = document.getElementById('cardTitle');
+const cardMessage = document.getElementById('cardMessage');
+const cardTime = document.getElementById('cardTime');
+const cardIcon = document.getElementById('cardIcon');
+const finalScore = document.getElementById('finalScore');
+const finalStats = document.getElementById('finalStats');
+const conversionMsg = document.getElementById('conversionMsg');
+const btnSpam = document.getElementById('btnSpam');
+const btnImportant = document.getElementById('btnImportant');
+const playAgain = document.getElementById('playAgain');
+
+let user = null;
+try { user = JSON.parse(localStorage.getItem('need2earn_user')); } catch(e) { user = null; }
+
+const notificationTypes = [
+  { icon: 'Mail', title: 'Inbox', message: 'Your subscription is expiring soon.', time: '1m ago', isSpam: false },
+  { icon: 'Gift', title: 'Congratulations!!!', message: 'You just won a brand new car!', time: '3h ago', isSpam: true },
+  { icon: 'AlertCircle', title: 'Security Alert', message: 'Unusual login detected.', time: '10m ago', isSpam: false },
+  { icon: 'ShoppingCart', title: 'FLASH SALE', message: '90% OFF on electronics! Hurry!', time: '1h ago', isSpam: true },
+  { icon: 'Bell', title: 'Meeting Reminder', message: 'Team sync starts in 5 minutes.', time: 'just now', isSpam: false },
+  { icon: 'Mail', title: 'Lottery Winner', message: 'Claim your $5000 prize now.', time: '2d ago', isSpam: true },
+  { icon: 'Zap', title: 'App Update', message: 'New version available — update today.', time: '5h ago', isSpam: false },
+  { icon: 'Gift', title: 'Exclusive Offer', message: 'Special rewards waiting just for you!', time: '30m ago', isSpam: true },
+  { icon: 'AlertCircle', title: 'Password Changed', message: 'Your password was changed successfully.', time: '2m ago', isSpam: false },
+  { icon: 'Mail', title: 'Fake Invoice', message: 'Your invoice #9123 is attached.', time: '1d ago', isSpam: true }
+];
+
+function getIconEmoji(iconName){
+  switch(iconName){
+    case 'Mail': return '✉️';
+    case 'Bell': return '🔔';
+    case 'ShoppingCart': return '🛒';
+    case 'Gift': return '🎁';
+    case 'AlertCircle': return '⚠️';
+    case 'Zap': return '⚡';
+    default: return '🔔';
+  }
+}
+
+// Game state
+let poolNotifications = [];
+let currentIndex = 0;
+let score = 0;
+let lives = 3;
+let inGame = false;
+const MAX_NOTIFICATIONS = 20;
+const CONVERSION_RATE = 1100; // points → 1 balance
+
+function updateUI() {
+  scoreEl.textContent = score;
+  livesEl.textContent = '❤️'.repeat(Math.max(0, lives));
+}
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showNotification() {
+  if (currentIndex >= MAX_NOTIFICATIONS) return endGame();
+  const n = poolNotifications[currentIndex];
+  cardTitle.textContent = n.title;
+  cardMessage.textContent = n.message;
+  cardTime.textContent = n.time;
+  cardIcon.textContent = getIconEmoji(n.icon);
+  cardIcon.className = 'card-icon ' + (n.isSpam ? 'icon-spam' : 'icon-important');
+}
+
+function startGame(){
+  poolNotifications = shuffle(Array.from({ length: 4 }, () => notificationTypes).flat()).slice(0, MAX_NOTIFICATIONS);
+  currentIndex = 0; score = 0; lives = 3; inGame = true;
+  startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; gameScreen.style.display = 'block';
+  updateUI(); showNotification();
+}
+
+async function endGame(){
+  inGame = false;
+  gameScreen.style.display = 'none';
+  gameOverScreen.style.display = 'block';
+  finalScore.textContent = score;
+  finalStats.textContent = `${currentIndex} notifications sorted.`;
+
+  const balanceGain = parseFloat((score / CONVERSION_RATE).toFixed(2));
+  conversionMsg.textContent = `Points converted: ${score} → Balance: ${balanceGain}`;
+
+  if(user && typeof user.id === "number"){
+    await updateUserBalance(user.id, balanceGain);
+  } else {
+    console.warn("No valid numeric user id found in localStorage.need2earn_user");
+  }
+}
+
+async function updateUserBalance(userId, balanceGain){
+  try {
+    // get current balance
+    const { data: userData, error: fetchError } = await supabase
+      .from('users')
+      .select('balance')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching user balance:', fetchError);
+      conversionMsg.textContent += " (⚠️ Balance fetch failed)";
+      return;
+    }
+
+    const newBalance = parseFloat((userData.balance || 0) + balanceGain).toFixed(2);
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ balance: newBalance })
+      .eq('id', userId);
+
+    if (updateError) {
+      console.error('Error updating user balance:', updateError);
+      conversionMsg.textContent += " (⚠️ Update failed)";
+    } else {
+      conversionMsg.textContent += ` ✅ balance: ${newBalance})`;
+    }
+  } catch (err) {
+    console.error("Unexpected DB update error:", err);
+    conversionMsg.textContent += " (⚠️ Conversion error)";
+  }
+  setTimeout(() => {
+    location.reload();
+  }, 2000);
+}
+
+function handleChoice(direction){
+  if (!inGame) return;
+  const n = poolNotifications[currentIndex];
+  const correct = (direction === 'left' && n.isSpam) || (direction === 'right' && !n.isSpam);
+  if (correct) {
+    score += 10;
+  } else {
+    lives--;
+    if (lives <= 0) {
+      updateUI();
+      return endGame();
+    }
+  }
+  currentIndex++;
+  updateUI();
+  if (currentIndex >= MAX_NOTIFICATIONS) return endGame();
+  setTimeout(() => { if (inGame) showNotification(); }, 100);
+}
+
+/* Event listeners */
+startBtn.addEventListener('click', startGame);
+btnSpam.addEventListener('click', () => handleChoice('left'));
+btnImportant.addEventListener('click', () => handleChoice('right'));
+playAgain.addEventListener('click', () => { startScreen.style.display = 'block'; gameOverScreen.style.display = 'none'; });
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') handleChoice('left');
+  if (e.key === 'ArrowRight') handleChoice('right');
+});
+
+/* Drag interaction */
+(function setupDrag(){
+  const card=document.getElementById('notificationCard');
+  let dragging=false,startX=0,offsetX=0;
+  function onStart(e){dragging=true;const p=e.touches?e.touches[0]:e;startX=p.clientX;card.style.transition='none';}
+  function onMove(e){if(!dragging)return;const p=e.touches?e.touches[0]:e;offsetX=p.clientX-startX;card.style.transform=`translateX(calc(-50% + ${offsetX}px)) rotate(${offsetX*0.05}deg)`;}
+  function onEnd(){if(!dragging)return;dragging=false;card.style.transition='transform .2s ease';
+    if(Math.abs(offsetX)>100){handleChoice(offsetX>0?'right':'left');card.style.transform=`translateX(calc(-50% + ${offsetX*3}px)) rotate(${offsetX*0.2}deg)`;setTimeout(()=>{card.style.transform='translateX(-50%)';},220);}
+    else card.style.transform='translateX(-50%)';offsetX=0;}
+  card.addEventListener('touchstart',onStart,{passive:true});
+  card.addEventListener('touchmove',onMove,{passive:true});
+  card.addEventListener('touchend',onEnd);
+  card.addEventListener('mousedown',onStart);
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onEnd);
+})();
+updateUI();
+</script>
+
+</body>
+</html>

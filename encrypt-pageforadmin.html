@@ -1,0 +1,234 @@
+<!-- save as encrypt.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Encrypt — Base64</title>
+  <style>
+    :root{
+      --bg:#fbfdff;
+      --accent:#0f3b73; /* blue-dark */
+      --muted:#aab7d0;
+      --card:#ffffff;
+      --radius:10px;
+    }
+
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{
+      background:var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      color:var(--accent);
+    }
+
+    .card{
+      width:100%;
+      max-width:720px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:0 10px 30px rgba(15,59,115,0.08);
+      padding:28px;
+      box-sizing:border-box;
+    }
+
+    h2{
+      margin:0 0 12px 0;
+      font-size:20px;
+      font-weight:600;
+      color:var(--accent);
+    }
+
+    p.note{
+      margin:0 0 18px 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    input[type="text"], textarea {
+      width:100%;
+      box-sizing:border-box;
+      padding:12px 14px;
+      border:1px solid #e0e7f3;
+      border-radius:8px;
+      font-size:15px;
+      color:#12263b;
+      background: #fbfdff;
+      outline: none;
+    }
+
+    textarea{
+      resize:vertical;
+      min-height:92px;
+      font-family:inherit;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    button{
+      background:var(--accent);
+      color:white;
+      border:0;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:14px;
+    }
+
+    button.ghost{
+      background:transparent;
+      border:1px solid #d6e0f5;
+      color:var(--accent);
+      font-weight:600;
+    }
+
+    .output-wrap{
+      margin-top:18px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .output{
+      flex:1;
+    }
+
+    .small {
+      font-size:13px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .feedback {
+      margin-left:8px;
+      font-size:13px;
+      color: #19734d;
+      display:inline-block;
+    }
+
+    @media (max-width:560px){
+      .row{flex-direction:column; align-items:stretch;}
+      .controls{flex-direction:column;}
+      .output-wrap{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <h2>Encrypt text (Base64)</h2>
+    <p class="note">Type any text below and click <strong>Encrypt</strong>. The encoded value will appear and can be copied.</p>
+
+    <div class="row" style="margin-bottom:12px;">
+      <input id="plain" type="text" placeholder="Type text to encrypt (supports Unicode)" aria-label="Text to encrypt" />
+      <button id="encryptBtn">Encrypt</button>
+    </div>
+
+    <div class="output-wrap">
+      <div class="output">
+        <label for="encrypted" style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Encrypted (Base64)</label>
+        <textarea id="encrypted" readonly placeholder="Encrypted result will show here"></textarea>
+        <div class="small">Result is plain Base64 — reversible with a matching decoder.</div>
+      </div>
+
+      <div style="width:120px;display:flex;flex-direction:column;">
+        <button id="copyBtn" style="margin-bottom:10px;">Copy</button>
+        <button id="selectBtn" class="ghost">Select</button>
+        <div id="status" class="feedback" aria-live="polite" style="visibility:hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper: Base64 encode that supports Unicode properly
+    function b64EncodeUnicode(str) {
+      // encodeURIComponent -> percent-encoding of UTF-8 bytes, then convert each %xx to char code
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+        return String.fromCharCode('0x' + p1);
+      }));
+    }
+
+    // Elements
+    const plainEl = document.getElementById('plain');
+    const encEl = document.getElementById('encrypted');
+    const encryptBtn = document.getElementById('encryptBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const selectBtn = document.getElementById('selectBtn');
+    const statusEl = document.getElementById('status');
+
+    function showStatus(msg, ok = true) {
+      statusEl.style.visibility = 'visible';
+      statusEl.textContent = msg;
+      statusEl.style.color = ok ? '#19734d' : '#c0392b';
+      // hide after 2.2s
+      clearTimeout(statusEl._t);
+      statusEl._t = setTimeout(()=> { statusEl.style.visibility = 'hidden'; }, 2200);
+    }
+
+    encryptBtn.addEventListener('click', ()=> {
+      const text = plainEl.value;
+      if (!text) {
+        showStatus('Please enter text first', false);
+        return;
+      }
+      try {
+        const encoded = b64EncodeUnicode(text);
+        encEl.value = encoded;
+        showStatus('Encrypted');
+      } catch (e) {
+        console.error(e);
+        showStatus('Failed to encode', false);
+      }
+    });
+
+    copyBtn.addEventListener('click', async ()=> {
+      if (!encEl.value) {
+        showStatus('Nothing to copy', false);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(encEl.value);
+        showStatus('Copied!');
+      } catch (err) {
+        // fallback: select & execCommand
+        encEl.select();
+        try {
+          document.execCommand('copy');
+          showStatus('Copied!');
+        } catch (e) {
+          showStatus('Copy failed', false);
+        }
+      }
+    });
+
+    selectBtn.addEventListener('click', ()=> {
+      if (!encEl.value) {
+        showStatus('Nothing to select', false);
+        return;
+      }
+      encEl.select();
+      showStatus('Selected');
+    });
+
+    // allow Enter to encrypt when focus is in the input
+    plainEl.addEventListener('keydown', (e)=> {
+      if (e.key === 'Enter') {
+        encryptBtn.click();
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>

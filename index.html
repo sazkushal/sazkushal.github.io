@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Need2Earn | Home</title>
+  <link rel="stylesheet" href="global_style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #0f172a;
+      color: #f1f5f9;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: #1e293b;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .earning-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding: 15px;
+    }
+
+    .earning-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      text-decoration: none;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex: 1;
+    }
+
+    .earning-card img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 10px;
+    }
+
+    .earning-card h3 {
+      margin: 5px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .earning-card p {
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .earning-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .earning-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1e293b;
+      display: flex;
+      justify-content: space-around;
+      padding: 5px 0;
+      border-top: 1px solid #334155;
+    }
+
+    .bottom-nav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .bottom-nav a.active {
+      color: #3b82f6;
+    }
+
+    .bottom-nav a img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 3px;
+    }
+
+    .auth-btn {
+      padding: 6px 12px;
+      margin-left: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="logo">NEED2EARN</h1>
+    <div id="header-right"></div>
+  </header>
+
+  <main>
+    <section id="tasks" class="tasks-section">
+      <div class="earning-cards">
+        <a href="captcha-n2e.html" class="earning-card">
+          <img src="icons/captcha.png" alt="Captcha Typing">
+          <h3>Captcha Typing</h3>
+          <p>Solve captchas and earn coins quickly!</p>
+        </a>
+        <a href="offerwall-n2e.html" class="earning-card">
+          <img src="icons/offerwall.png" alt="Offerwall">
+          <h3>Offerwall</h3>
+          <p>Complete offers and tasks for rewards.</p>
+        </a>
+        <a href="play-gg.html" class="earning-card">
+          <img src="icons/games.png" alt="Play Games">
+          <h3>Play Games</h3>
+          <p>Play fun games and earn coins.</p>
+        </a>
+        <div class="earning-card disabled">
+          <img src="icons/under-dev.png" alt="Under Development">
+          <h3>Under Development</h3>
+          <p>This feature is coming soon!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="active"><img src="icons/home.png" alt="Home"><span>Home</span></a>
+    <a href="wallet.html"><img src="icons/wallet.png" alt="Wallet"><span>Wallet</span></a>
+    <a href="profile.html"><img src="icons/user.png" alt="Profile"><span>Profile</span></a>
+    <a href="refersection.html"><img src="icons/users.png" alt="Refer"><span>Refer</span></a>
+  </nav>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://hkfixjnwzkghapljsxzg.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const headerRight = document.getElementById("header-right");
+
+    let localUser = JSON.parse(localStorage.getItem("need2earn_user"));
+
+    if (localUser) {
+  async function refreshBalance() {
+    const { data, error } = await supabase
+      .from("users")
+      .select("balance")
+      .eq("id", localUser.id)
+      .single();
+
+    if (!error && data) {
+      headerRight.innerHTML = `<span class="balance">💰 ${data.balance}</span>`;
+      // Also update localStorage for consistency
+      localUser.balance = data.balance;
+      localStorage.setItem("need2earn_user", JSON.stringify(localUser));
+    } else {
+      headerRight.innerHTML = `<span class="balance">💰 ${localUser.balance ?? 0}</span>`;
+    }
+  }
+
+  refreshBalance();
+  setInterval(refreshBalance, 5000); // optional auto-refresh
+} else {
+  headerRight.innerHTML = `
+    <button class="auth-btn" onclick="location.href='login.html'">Login</button>
+    <button class="auth-btn" onclick="location.href='signup.html'">Signup</button>
+  `;
+}
+
+  </script>
+</body>
+</html>

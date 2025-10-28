@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Need2Earn – Login</title>
+  <link rel="stylesheet" href="global_style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <header>
+    <div class="logo">NEED2EARN</div>
+  </header>
+
+  <main>
+    <section class="form-container">
+      <h2>Welcome Back</h2>
+
+      <form id="login-form">
+        <div class="input-group">
+          <label>Mobile Number</label>
+          <input type="tel" id="mobile" placeholder="Enter mobile number" required>
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" class="submit-btn">Login</button>
+        <p class="redirect-text">Don’t have an account? <a href="signup.html">Sign Up</a></p>
+      </form>
+
+      <p id="message"></p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="active"><i data-lucide="home"></i>Home</a>
+    <a href="wallet.html"><i data-lucide="wallet"></i>Wallet</a>
+    <a href="profile.html"><i data-lucide="user"></i>Profile</a>
+    <a href="refersection.html"><i data-lucide="users"></i>Refer</a>
+  </nav>
+
+  <script>
+    // Initialize Supabase
+    const supabaseUrl = 'https://hkfixjnwzkghapljsxzg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) lucide.createIcons();
+
+      const form = document.getElementById('login-form');
+      const message = document.getElementById('message');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const mobile = document.getElementById('mobile').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        message.textContent = "";
+        message.style.color = "";
+
+        try {
+          // Fetch user by mobile number
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('mobile', mobile)
+            .maybeSingle(); // safer than .single()
+
+          console.log("Fetched user:", data, "Error:", error);
+
+          if (error) {
+            message.textContent = "Error connecting to database.";
+            message.style.color = "red";
+            return;
+          }
+
+          if (!data) {
+            message.textContent = "No account found with that mobile number.";
+            message.style.color = "red";
+            return;
+          }
+
+          // Check password manually
+          if (data.password !== password) {
+            message.textContent = "Incorrect password.";
+            message.style.color = "red";
+            return;
+          }
+
+          // ✅ Success: Save user to localStorage
+          localStorage.setItem('need2earn_user', JSON.stringify(data));
+          message.textContent = "Login successful! Redirecting...";
+          message.style.color = "#38bdf8";
+
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1200);
+
+        } catch (err) {
+          console.error("Unexpected error:", err);
+          message.textContent = "Something went wrong. Please try again.";
+          message.style.color = "red";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

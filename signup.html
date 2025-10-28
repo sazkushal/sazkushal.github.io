@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Need2Earn – Signup</title>
+  <link rel="stylesheet" href="global_style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <header>
+    <div class="logo">NEED2EARN</div>
+  </header>
+
+  <main>
+    <section class="form-container">
+      <h2>Create Account</h2>
+
+      <form id="signup-form">
+        <div class="input-group">
+          <label>Mobile Number</label>
+          <input type="tel" id="mobile" placeholder="Enter mobile number" required>
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+
+        <div class="input-group">
+          <label>Referral Code (Optional)</label>
+          <input type="text" id="refer_code" placeholder="Enter referral code">
+        </div>
+
+        <button type="submit" class="submit-btn">Sign Up</button>
+        <p class="redirect-text">Already have an account? <a href="login.html">Login</a></p>
+      </form>
+
+      <p id="message"></p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="active"><i data-lucide="home"></i>Home</a>
+    <a href="wallet.html"><i data-lucide="wallet"></i>Wallet</a>
+    <a href="profile.html"><i data-lucide="user"></i>Profile</a>
+    <a href="refersection.html"><i data-lucide="users"></i>Refer</a>
+  </nav>
+
+  <script>
+    const supabaseUrl = 'https://hkfixjnwzkghapljsxzg.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) lucide.createIcons();
+
+      const form = document.getElementById('signup-form');
+      const message = document.getElementById('message');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const mobile = document.getElementById('mobile').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const refer_code = document.getElementById('refer_code').value.trim().toUpperCase();
+
+        if (mobile.length < 8 || password.length < 4) {
+          message.textContent = "Please enter valid details.";
+          message.style.color = "red";
+          return;
+        }
+
+        // ✅ Validate referral code if entered
+        if (refer_code) {
+          const { data: refCheck, error: refError } = await supabase
+            .from("users")
+            .select("id")
+            .eq("refer_code", refer_code)
+            .maybeSingle();
+
+          if (refError) {
+            console.error(refError);
+            message.textContent = "Error checking referral code.";
+            message.style.color = "red";
+            return;
+          }
+
+          if (!refCheck) {
+            message.textContent = "Invalid referral code. Please check again.";
+            message.style.color = "red";
+            return;
+          }
+        }
+
+        const myCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        const { data, error } = await supabase
+          .from('users')
+          .insert([
+            {
+              mobile,
+              password,
+              balance: 0,
+              total_balance: 0,
+              refer_code: myCode,
+              referred_by: refer_code || null,
+              verified: false
+            }
+          ]);
+
+        if (error) {
+          console.error(error);
+          message.textContent = "Signup failed: " + error.message;
+          message.style.color = "red";
+        } else {
+          message.textContent = "Signup successful! Redirecting...";
+          message.style.color = "#38bdf8";
+          setTimeout(() => window.location.href = "login.html", 1500);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

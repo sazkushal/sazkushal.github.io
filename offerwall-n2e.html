@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offerwall | Need2Earn</title>
+<link rel="stylesheet" href="global_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body {
+  background: #0f172a url('icons/backimage.jpg') no-repeat center center fixed;
+  color: #f1f5f9;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e3273;
+  padding: 15px 25px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+header img { height:28px; cursor:pointer; }
+header .balance { font-weight:600; font-size:18px; }
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column; /* vertical stack */
+  gap: 20px;
+  padding: 20px;
+  align-items: center;
+  overflow-y: auto; /* vertical scrolling */
+}
+
+.offer-card {
+  background: #ffffff;
+  color: #0f172a;
+  width: 90%;
+  max-width: 800px; /* wide card */
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+}
+
+.offer-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.offer-card .taskdesc {
+  font-size: 14px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.offer-card button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  width: 100%;
+}
+
+.offer-card:hover { transform: translateY(-5px); }
+.offer-card button:disabled { background: #475569; cursor:not-allowed; }
+
+#taskPopup {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.5);
+  display:none; justify-content:center; align-items:center;
+}
+#taskPopup .popup-content {
+  background: #ffffff; color:#000; width:90%; max-width:400px; padding:20px; border-radius:10px; display:flex; flex-direction:column; gap:10px;
+}
+#taskPopup img { width:100%; height:200px; object-fit:cover; border-radius:5px; }
+#taskPopup textarea { width:100%; resize:none; display:none; }
+#taskPopup input[type="file"] { margin-top:5px; }
+.imgupload { background:#2563eb; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer; font-weight:600; }
+#taskPopup button { background:#2563eb; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer; font-weight:600; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="icons/back.png" alt="Back" onclick="window.location.href='index.html'">
+  <div class="balance">Balance: ₹<span id="balance">0</span></div>
+</header>
+
+<main id="offersContainer"></main>
+
+<div id="taskPopup">
+  <div class="popup-content">
+    <img id="popupImage" src="" alt="Task Image">
+    <p id="popupDesc"></p>
+    <ol>
+      <li>Go to the <a id="popupLink" href="#" target="_blank">task link</a> to start the task.</li>
+      <li>Complete the task and take a screenshot of successful completion.</li>
+      <li>Upload the image below:</li>
+    </ol>
+    <input type="file" id="taskImageUpload" accept="image/*" class="imgupload">
+    <button id="submitTaskBtn">Submit Task</button>
+    <button id="closePopupBtn" >Close</button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabaseUrl = "https://hkfixjnwzkghapljsxzg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+let user = JSON.parse(localStorage.getItem("need2earn_user"));
+const balanceEl = document.getElementById("balance");
+const offersContainer = document.getElementById("offersContainer");
+const taskPopup = document.getElementById("taskPopup");
+const popupImage = document.getElementById("popupImage");
+const popupDesc = document.getElementById("popupDesc");
+const popupLink = document.getElementById("popupLink");
+const taskImageUpload = document.getElementById("taskImageUpload");
+const submitTaskBtn = document.getElementById("submitTaskBtn");
+let selectedOffer = null;
+document.getElementById("closePopupBtn").addEventListener("click", closePopup);
+
+// Update balance
+async function updateBalanceDisplay() {
+  if(!user) return;
+  const { data } = await supabase.from("users").select("balance").eq("id", user.id).single();
+  if(data){ balanceEl.textContent = data.balance; user.balance = data.balance; localStorage.setItem("need2earn_user", JSON.stringify(user)); }
+}
+
+// Load offers
+async function loadOffers() {
+  const res = await fetch("offers/offers.json");
+  const offers = await res.json();
+  
+  const { data: submissions } = await supabase.from("offerwall_details").select("*").eq("user_id", user?.id);
+  
+  offers.forEach(offer => {
+    const card = document.createElement("div");
+    card.className = "offer-card";
+
+    const offerImg = document.createElement("img");
+    offerImg.src = `offers/${offer.offerid}.png`;
+
+    const desc = document.createElement("div");
+    desc.className = "taskdesc";
+    desc.textContent = offer.taskdesc;
+
+    const submitInfo = submissions?.find(s => s.offer_id === offer.offerid);
+
+    const btn = document.createElement("button");
+    if(submitInfo){
+    btn.disabled = true;
+
+    // create a flex container for icon + text
+    const statusContainer = document.createElement("div");
+    statusContainer.style.display = "flex";
+    statusContainer.style.alignItems = "center";
+    statusContainer.style.gap = "10px"; // space between icon and text
+    statusContainer.style.marginTop = "10px";
+
+    const statusIcon = document.createElement("img");
+    statusIcon.src = `icons/${submitInfo.status}.png`;
+    statusIcon.style.width = "30px";
+    statusIcon.style.height = "30px"; // ensure square
+    statusIcon.style.objectFit = "contain";
+
+    const statusText = document.createElement("p");
+    statusText.textContent = `Offer is ${submitInfo.status}, submission id: "${submitInfo.submit_id}"  Please Contact Customer Service if needed .`;
+    statusText.style.margin = "0";
+    statusText.style.fontSize = "14px";
+    statusText.style.flex = "1"; // take remaining space
+
+    statusContainer.appendChild(statusIcon);
+    statusContainer.appendChild(statusText);
+
+    card.appendChild(statusContainer);
+}else {
+    // For offers not yet submitted, show Start Task button
+    btn.textContent = "Start Task";
+    btn.onclick = () => openPopup(offer);
+    card.appendChild(btn);
+}
+
+
+    card.insertBefore(offerImg, card.firstChild);
+    card.insertBefore(desc, card.children[1]);
+    
+    offersContainer.appendChild(card);
+  });
+}
+
+// Popup
+function openPopup(offer){
+  selectedOffer = offer;
+  popupImage.src = `offers/${offer.offerid}.png`;
+  popupDesc.textContent = offer.taskdesc;
+  popupLink.href = offer.offerlink;
+  taskPopup.style.display = "flex";
+}
+
+function closePopup(){
+  taskPopup.style.display = "none";
+  taskImageUpload.value = "";
+}
+
+// Submit task
+submitTaskBtn.onclick = async () => {
+  if(!taskImageUpload.files.length) return alert("Please select an image!");
+  
+  const formData = new FormData();
+  formData.append("image", taskImageUpload.files[0]);
+  
+  const res = await fetch("https://api.imgbb.com/1/upload?key=baffba0fb57f7b39e8683dafecf35b9f", { method:"POST", body:formData });
+  const data = await res.json();
+  const imageUrl = data.data.url;
+  
+  const submit_id = Math.random().toString(36).substring(2,12);
+  await supabase.from("offerwall_details").insert({
+    submit_id,
+    user_id: user.id,
+    offer_id: selectedOffer.offerid,
+    image_url: imageUrl,
+    status: "pending"
+  });
+  
+  alert("Task submitted successfully! Submission ID: " + submit_id);
+  closePopup();
+  offersContainer.innerHTML = "";
+  loadOffers();
+}
+
+// Init
+updateBalanceDisplay();
+loadOffers();
+</script>
+</body>
+</html>

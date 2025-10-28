@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile | Need2Earn</title>
+<link rel="stylesheet" href="global_style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body { background:#0f172a; color:#f1f5f9; font-family:'Poppins',sans-serif; margin:0; }
+  main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 100px; /* ✅ add enough bottom space */
+  overflow-y: auto; /* allow scrolling if needed */
+}
+
+
+  .profile-pic { width:140px; height:140px; border-radius:50%; object-fit:cover; margin-top:20px; border:4px solid #3b82f6; }
+
+  .info-box { width:90%; max-width:400px; background:#1e293b; border-radius:12px; padding:20px; margin-top:20px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.3); }
+  .info-box h3 { margin:0 0 10px 0; font-size:18px; }
+  .info-box p { margin:5px 0; color:#94a3b8; font-size:14px; }
+
+  .action-text { font-size:13px; color:#60a5fa; cursor:pointer; margin-top:8px; display:inline-block; }
+  .btn { margin-top:15px; padding:12px 20px; background:#ef4444; color:#f1f5f9; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+
+  input { width:80%; padding:10px; border-radius:8px; border:none; margin-top:10px; background: rgba(255,255,255,0.05); color:#f1f5f9; }
+
+  .modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:200; display:none; }
+  .modal-content { background:#1e293b; padding:25px; border-radius:12px; width:90%; max-width:400px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .modal-content button { width:100%; padding:12px; margin-top:10px; cursor:pointer; transition: transform 0.2s; border:none; border-radius:8px; background:#3b82f6; color:#f1f5f9; font-weight:600; }
+  .modal-content button:hover { transform:scale(1.05); }
+
+  #popup { position:fixed; bottom:20px; left:50%; transform: translateX(-50%) translateY(20px); background:#3b82f6; color:#f1f5f9; padding:14px 24px; border-radius:12px; font-weight:700; opacity:0; pointer-events:none; transition: opacity 0.5s ease, transform 0.5s ease; z-index:300; }
+  #popup.show { opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
+
+  nav.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background:#1e293b; display:flex; justify-content:space-around; padding:5px 0; border-top:1px solid #334155; }
+  nav.bottom-nav a { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:#94a3b8; font-size:12px; }
+  nav.bottom-nav a.active { color:#3b82f6; }
+  nav.bottom-nav a img { width:24px; height:24px; margin-bottom:3px; }
+</style>
+</head>
+<body>
+
+<main>
+  <img id="profile-pic" class="profile-pic" src="" alt="Profile Pic">
+
+  <div class="info-box" id="wallet-box">
+    <h3>Wallet</h3>
+    <p>Balance: ₹<span id="balance">0</span> | Lifetime: ₹<span id="total_balance">0</span></p>
+  </div>
+
+  <div class="info-box" id="upi-box">
+    <h3>UPI Details</h3>
+    <p id="upi-id">Loading...</p>
+    <span class="action-text" id="modify-upi">Modify UPI Details</span>
+  </div>
+
+  <div class="info-box" id="gift-box">
+    <h3>Enter Gift Code</h3>
+    <input type="text" id="gift-code-input" placeholder="Enter gift code">
+    <button id="claim-gift-btn">Claim</button>
+  </div>
+
+  <div class="info-box">
+    <h3>Customer Service</h3>
+    <span class="action-text" id="cs-link">Contact Support</span>
+  </div>
+
+  <button class="btn" id="logout-btn">Logout</button>
+</main>
+
+<!-- UPI Modal -->
+<div id="upi-modal" class="modal">
+  <div class="modal-content">
+    <h3>Update UPI Details</h3>
+    <input type="text" id="new-upi" placeholder="Enter UPI ID">
+    <button id="save-upi-btn">Save</button>
+    <button id="cancel-upi-btn" style="background:#ef4444;">Cancel</button>
+  </div>
+</div>
+
+<div id="popup"></div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><img src="icons/home.png" alt="Home"><span>Home</span></a>
+  <a href="wallet.html"><img src="icons/wallet.png" alt="Wallet"><span>Wallet</span></a>
+  <a href="profile.html" class="active"><img src="icons/user.png" alt="Profile"><span>Profile</span></a>
+  <a href="refersection.html"><img src="icons/users.png" alt="Refer"><span>Refer</span></a>
+</nav>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabaseUrl = "https://hkfixjnwzkghapljsxzg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const profilePic = document.getElementById("profile-pic");
+const balanceEl = document.getElementById("balance");
+const totalBalanceEl = document.getElementById("total_balance");
+const upiIdEl = document.getElementById("upi-id");
+const popup = document.getElementById("popup");
+
+// Buttons & Inputs
+const modifyUpiBtn = document.getElementById("modify-upi");
+const claimGiftBtn = document.getElementById("claim-gift-btn");
+const logoutBtn = document.getElementById("logout-btn");
+const csLink = document.getElementById("cs-link");
+const upiModal = document.getElementById("upi-modal");
+const saveUpiBtn = document.getElementById("save-upi-btn");
+const cancelUpiBtn = document.getElementById("cancel-upi-btn");
+const newUpiInput = document.getElementById("new-upi");
+const giftInput = document.getElementById("gift-code-input");
+
+let user = null;
+let paymentMethod = null;
+
+function showPopup(msg,color="#3b82f6"){
+  popup.textContent=msg;
+  popup.style.background=color;
+  popup.classList.add("show");
+  setTimeout(()=>popup.classList.remove("show"),3000);
+}
+
+function setRandomProfilePic(){
+  let xyz = Math.abs(user.balance) % 10; 
+  profilePic.src = `images/profilepic(${xyz}).png`;
+}
+
+function openUpiModal(){ upiModal.style.display="flex"; }
+function closeUpiModal(){ upiModal.style.display="none"; }
+
+async function loadUser(){
+  const local = JSON.parse(localStorage.getItem("need2earn_user"));
+  if(!local) return showPopup("Login required","red");
+
+  // Fetch user
+  const { data: userData, error } = await supabase.from("users").select("*").eq("id",local.id).single();
+  if(error) return showPopup(error.message,"red");
+  user = userData;
+
+  setRandomProfilePic();
+  balanceEl.textContent = user.balance ?? 0;
+  totalBalanceEl.textContent = user.total_balance ?? 0;
+
+  // Fetch UPI from users_paymentmode
+  const { data: payData } = await supabase.from("users_paymentmode").select("*").eq("user_id",user.id).single();
+  if(payData){
+    paymentMethod = payData;
+    upiIdEl.textContent = payData.upi_id;
+  } else {
+    upiIdEl.textContent = "Not added";
+  }
+}
+
+// Update UPI
+async function saveUpi(){
+  const upi = newUpiInput.value.trim();
+  if(!upi) return showPopup("Enter UPI ID","red");
+
+  if(paymentMethod){
+    await supabase.from("users_paymentmode").update({upi_id:upi}).eq("id",paymentMethod.id);
+  } else {
+    await supabase.from("users_paymentmode").insert([{user_id:user.id, upi_id:upi, name:""}]);
+  }
+
+  closeUpiModal();
+  showPopup("UPI Updated!");
+  loadUser();
+}
+
+// Claim gift code via SQL function
+async function claimGiftCode(){
+  const code = giftInput.value.trim();
+  if(!code) return showPopup("Enter gift code","red");
+
+  const { data, error } = await supabase.rpc("claim_gift_code",{ p_user_id:user.id, p_code:code });
+  if(error) return showPopup(error.message,"red");
+
+  showPopup(data);
+  giftInput.value="";
+  loadUser();
+}
+
+// Attach events
+modifyUpiBtn.addEventListener("click",openUpiModal);
+saveUpiBtn.addEventListener("click",saveUpi);
+cancelUpiBtn.addEventListener("click",closeUpiModal);
+claimGiftBtn.addEventListener("click",claimGiftCode);
+logoutBtn.addEventListener("click", () => {
+  localStorage.removeItem("need2earn_user"); // Clear stored user data
+  location.href = "login.html";              // Then redirect
+});
+
+csLink.addEventListener("click",()=>location.href="csn2e.html");
+
+window.addEventListener("DOMContentLoaded",()=>{
+  loadUser();
+  setInterval(loadUser,5000);
+});
+</script>
+</body>
+</html>

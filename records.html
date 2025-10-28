@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdrawal Records | Need2Earn</title>
+<link rel="stylesheet" href="global_style.css">
+<style>
+  body { background:#0f172a; color:#f1f5f9; font-family:'Poppins',sans-serif; margin:0; padding:0;}
+  header { display:flex; align-items:center; padding:10px 20px; background:#1e293b; }
+  header img { width:24px; height:24px; cursor:pointer; }
+  header h1 { margin:0 auto; font-size:20px; text-align:center; flex:1; }
+
+  main { padding:15px; }
+
+  /* Professional record card design */
+  .record-card {
+    display:flex; justify-content:space-between; align-items:center;
+    background:#1e293b; border-radius:16px; padding:15px 20px;
+    margin-bottom:15px; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+  .record-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  }
+
+  .record-info { display:flex; flex-direction:column; }
+
+  .record-info .amount { font-size:22px; font-weight:700; margin-bottom:5px; }
+  .record-info .orderid { font-size:14px; color:#94a3b8; margin-bottom:3px; }
+  .record-info .time { font-size:12px; color:#6b7280; }
+
+  .record-status img { width:40px; height:40px; }
+
+  /* Modal */
+  .modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:200; visibility:hidden; opacity:0; transition: opacity 0.3s ease; }
+  .modal.show { visibility:visible; opacity:1; }
+
+  .modal-content { background:#1e293b; padding:25px; border-radius:20px; width:90%; max-width:400px; position:relative; text-align:center; display:flex; flex-direction:column; align-items:center; }
+
+  .modal-content img.close { position:absolute; top:15px; left:15px; width:24px; height:24px; cursor:pointer; }
+  .modal-content .status-img { width:60px; height:60px; margin-top:10px; }
+  .modal-content .status-label { margin-top:5px; font-weight:700; text-transform:capitalize; }
+
+  .modal-content .detail-group { width:100%; margin:12px 0; text-align:left; }
+  .modal-content .detail-group label { font-weight:700; font-size:14px; display:block; margin-bottom:3px; }
+  .modal-content .detail-group span { font-size:15px; display:flex; align-items:center; }
+
+  /* Copy SVG icon */
+  .modal-content .detail-group span svg.copy {
+    width:20px;
+    height:20px;
+    margin-left:8px;
+    cursor:pointer;
+    vertical-align:middle;
+    color:#f1f5f9;
+    transition: transform 0.2s, color 0.2s;
+  }
+  .modal-content .detail-group span svg.copy:hover {
+    transform: scale(1.2);
+    color:#60a5fa;
+  }
+
+  .modal-content .description { margin-top:15px; font-size:13px; color:#94a3b8; text-align:center; line-height:1.4; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="icons/back.png" alt="Back" onclick="history.back()">
+  <h1>Withdrawal Records</h1>
+</header>
+
+<main id="records-section">
+  <p>Loading records...</p>
+</main>
+
+<!-- Modal for detailed info -->
+<div id="record-modal" class="modal">
+  <div class="modal-content">
+    <img src="icons/back.png" class="close" onclick="closeModal()">
+    <img src="" class="status-img" id="modal-status-img">
+    <div class="status-label" id="modal-status-label"></div>
+
+    <div class="detail-group">
+  <label>Order ID</label>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <span id="modal-orderid">ORD12345</span>
+    <button id="copy-orderid-btn" style="
+      background:#3b82f6;
+      color:#f1f5f9;
+      border:none;
+      padding:5px 10px;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:12px;
+    ">Copy</button>
+  </div>
+</div>
+
+
+    <div class="detail-group">
+      <label>Amount</label>
+      <span id="modal-amount">₹100</span>
+    </div>
+    <div class="detail-group">
+      <label>Name</label>
+      <span id="modal-name">John Doe</span>
+    </div>
+    <div class="detail-group">
+      <label>UPI ID</label>
+      <span id="modal-upi">example@upi</span>
+    </div>
+    <div class="detail-group">
+      <label>Time</label>
+      <span id="modal-time">2025-10-23 12:30:00</span>
+    </div>
+
+    <div class="description">
+      The withdrawal may take 1-2 days to receive.
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabaseUrl = "https://hkfixjnwzkghapljsxzg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZml4am53emtnaGFwbGpzeHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNDYyODgsImV4cCI6MjA3NjcyMjI4OH0.vfaXH70jFUlNzqynIKDKyCpIH5P0SrrwRWROjfIB5EI";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+let user = JSON.parse(localStorage.getItem("need2earn_user"));
+const recordsSection = document.getElementById("records-section");
+
+// Modal elements
+const modal = document.getElementById("record-modal");
+const modalStatusImg = document.getElementById("modal-status-img");
+const modalStatusLabel = document.getElementById("modal-status-label");
+const modalOrderId = document.getElementById("modal-orderid");
+const modalAmount = document.getElementById("modal-amount");
+const modalName = document.getElementById("modal-name");
+const modalUpi = document.getElementById("modal-upi");
+const modalTime = document.getElementById("modal-time");
+
+window.closeModal = ()=> modal.classList.remove("show");
+
+window.copyOrderId = ()=>{
+  const orderIdText = modalOrderId.textContent.trim();
+  navigator.clipboard.writeText(orderIdText).then(()=>alert("Order ID copied!"));
+};
+const copyBtn = document.getElementById("copy-orderid-btn");
+
+copyBtn.addEventListener("click", ()=>{
+  const orderIdText = modalOrderId.textContent.trim();
+  navigator.clipboard.writeText(orderIdText).then(()=>alert("Order ID copied!"));
+});
+
+async function loadRecords(){
+  if(!user){
+    recordsSection.innerHTML = "<p>Please login to see records.</p>";
+    return;
+  }
+
+  const { data, error } = await supabase.from("withdrawals")
+    .select("*")
+    .eq("user_id", user.id)
+    .order('created_at', { ascending:false });
+
+  if(error) return recordsSection.innerHTML = `<p>Error loading records: ${error.message}</p>`;
+  if(!data || data.length===0) return recordsSection.innerHTML="<p>No records found.</p>";
+
+  recordsSection.innerHTML = "";
+  data.forEach(record=>{
+    const card = document.createElement("div");
+    card.className = "record-card";
+
+    const info = document.createElement("div");
+    info.className="record-info";
+    info.innerHTML = `
+      <div class="amount">₹${record.amount}</div>
+      <div class="orderid">${record.order_id}</div>
+      <div class="time">${new Date(record.created_at).toLocaleString()}</div>
+    `;
+    
+    const statusDiv = document.createElement("div");
+    statusDiv.className="record-status";
+    let icon = "pending.png";
+    if(record.status==="success") icon="success.png";
+    else if(record.status==="failed") icon="failed.png";
+    statusDiv.innerHTML=`<img src="icons/${icon}">`;
+
+    card.appendChild(info);
+    card.appendChild(statusDiv);
+    recordsSection.appendChild(card);
+
+    card.addEventListener("click", ()=>{
+      modalStatusImg.src=`icons/${icon}`;
+      modalStatusLabel.textContent = record.status;
+      modalOrderId.textContent = record.order_id;
+      modalAmount.textContent = `₹${record.amount}`;
+      modalName.textContent = record.payment_name;
+      modalUpi.textContent = record.payment_upi;
+      modalTime.textContent = new Date(record.created_at).toLocaleString();
+      modal.classList.add("show");
+    });
+  });
+}
+
+window.addEventListener("DOMContentLoaded", loadRecords);
+</script>
+</body>
+</html>

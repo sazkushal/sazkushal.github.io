@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Earn | Need2Earn</title>
+<style>
+body {
+  background: #0f172a;
+  color: #f1f5f9;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e3273;
+  padding: 15px 25px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+header img {
+  height: 28px;
+  cursor: pointer;
+}
+
+header .balance {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  text-align: left;
+  max-width: 400px;
+}
+
+h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.description {
+  color: #94a3b8;
+  font-size: 15px;
+  margin-bottom: 30px;
+}
+
+button {
+  padding: 12px 30px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  transition: all 0.2s ease;
+}
+button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+button:disabled {
+  background: #475569;
+  cursor: not-allowed;
+}
+
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #1e293b;
+  padding: 15px 25px;
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.popup.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+body {
+  background-image: url('icons/backimage.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.popup.success { border-left: 4px solid #22c55e; }
+.popup.error { border-left: 4px solid #ef4444; }
+.new-div {
+  border: 2px solid white;
+  border-radius: 5px;
+  padding: 20px;
+  background-color: #1e3273;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="icons/back.png" alt="Back" onclick="window.location.href='index.html'">
+  <div class="balance">Balance: ₹<span id="balance">0</span></div>
+</header>
+
+<main>
+  <div class="new-div">
+    <h2>Earn Points</h2>
+    <p class="description">
+      Complete simple steps and earn real rupees instantly!
+      Follow easy tasks like watching videos or filling surveys.
+      Each step you finish adds more money to your wallet.
+      Withdraw your earnings securely anytime.
+      Start today and turn your time into cash rewards!
+    </p>
+    <button id="earnBtn">Click to Earn</button>
+  </div>
+</main>
+
+<div id="popup" class="popup"></div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const newsimplaar = "ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW1oclptbDRhbTUzZW10bmFHRndiR3B6ZUhwbklpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTmpFeE5EWXlPRGdzSW1WNGNDSTZNakEzTmpjeU1qSTRPSDAudmZhWEg3MGpGVWxOenF5bklLREt5Q3BJSDVQMFNycndSV1JPamZJQjVFSQ==";
+
+
+
+                                                                                                                                                                                    const newsimplar = atob(newsimplaar);
+
+
+
+
+// --- Supabase Setup ---
+const supabaseUrl = "https://hkfixjnwzkghapljsxzg.supabase.co";
+
+const supabase = createClient(supabaseUrl, newsimplar);
+
+// --- DOM Elements ---
+let user = JSON.parse(localStorage.getItem("need2earn_user"));
+const earnBtn = document.getElementById("earnBtn");
+const popup = document.getElementById("popup");
+const balanceEl = document.getElementById("balance");
+
+// --- Popup Notification ---
+function showPopup(message, type = "success") {
+  popup.textContent = message;
+  popup.className = `popup ${type} show`;
+  setTimeout(() => popup.classList.remove("show"), 2000);
+}
+
+// --- Update Balance ---
+async function updateBalanceDisplay() {
+  if (!user) return;
+  const { data, error } = await supabase
+    .from("users")
+    .select("balance")
+    .eq("id", user.id)
+    .single();
+  if (data) {
+    balanceEl.textContent = data.balance;
+    user.balance = data.balance;
+    localStorage.setItem("need2earn_user", JSON.stringify(user));
+  }
+}
+
+// --- Pick Random Link ---
+async function pickRandomLink() {
+  const { data, error } = await supabase.from("links").select("*");
+  if (error || !data?.length) return null;
+  return data[Math.floor(Math.random() * data.length)];
+}
+
+// --- Handle Earn Button ---
+earnBtn.addEventListener("click", async () => {
+  if (!user) return showPopup("Please login first", "error");
+
+  earnBtn.disabled = true;
+  showPopup("Processing task...", "success");
+
+  const link = await pickRandomLink();
+  if (!link) {
+    showPopup("No tasks available", "error");
+    earnBtn.disabled = false;
+    return;
+  }
+
+  const { data: token, error } = await supabase.rpc("create_click_token", {
+    p_user: parseInt(user.id),
+    p_link: parseInt(link.id),
+  });
+
+  if (error) {
+    console.error(error);
+    showPopup("Error creating task", "error");
+    earnBtn.disabled = false;
+    return;
+  }
+
+  window.location.href = link.url;
+});
+
+// --- On Redirect (Redeem Task) ---
+window.addEventListener("DOMContentLoaded", async () => {
+  await updateBalanceDisplay();
+  const linkId = new URLSearchParams(window.location.search).get("id");
+  if (!linkId || !user) return;
+
+  // Check for an unredeemed token
+  const { data: tokenRow } = await supabase
+    .from("user_link_tokens")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("link_id", linkId)
+    .eq("redeemed", false)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!tokenRow) return;
+
+  // Redeem token
+  const { data: success, error } = await supabase.rpc("redeem_click_token", {
+    p_user: user.id,
+    p_link: linkId,
+    p_token: tokenRow.token,
+  });
+
+  if (error) {
+    console.error("Redeem error:", error);
+    showPopup("Task failed or expired", "error");
+    return;
+  }
+
+  if (success) {
+    // Add reward
+    const { data: newBalance, error: rewardError } = await supabase.rpc("add_task_reward", {
+      p_user: parseInt(user.id),
+    });
+    console.log("💵 add_task_reward result:", { newBalance, rewardError });
+
+    if (rewardError) {
+      console.error("❌ Reward error:", rewardError);
+      showPopup("Failed to add reward", "error");
+      return;
+    }
+
+    if (newBalance !== null) {
+      balanceEl.textContent = newBalance;
+      user.balance = newBalance;
+      localStorage.setItem("need2earn_user", JSON.stringify(user));
+      showPopup("✅ Task completed! ₹1 added", "success");
+    }
+  }
+});
+</script>
+</body>
+</html>
