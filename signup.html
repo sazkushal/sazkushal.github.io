@@ -55,6 +55,16 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       if (window.lucide) lucide.createIcons();
+      
+      // Auto-fill referral code if ?ref= is in URL
+     const urlParams = new URLSearchParams(window.location.search);
+     const ref = urlParams.get('ref');
+     if (ref) {
+      const refInput = document.getElementById('refer_code');
+      refInput.value = ref.toUpperCase();  // auto-fill it
+      refInput.readOnly = true;            // optional: lock the field to prevent edits
+     }
+
 
       const form = document.getElementById('signup-form');
       const message = document.getElementById('message');
