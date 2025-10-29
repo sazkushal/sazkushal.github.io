@@ -350,7 +350,7 @@ function handleChoice(direction){
   const n = poolNotifications[currentIndex];
   const correct = (direction === 'left' && n.isSpam) || (direction === 'right' && !n.isSpam);
   if (correct) {
-    score += 10;
+    score += 60;
   } else {
     lives--;
     if (lives <= 0) {
