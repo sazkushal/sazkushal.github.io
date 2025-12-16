@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Web Developer | Portfolio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Devicon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">My<span>Portfolio</span>.</a>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#projects">Work</a></li>
+                <li><a href="#contact" class="btn-nav">Let's Talk</a></li>
+            </ul>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-accent"></div>
+        <div class="container hero-content">
+            <span class="subtitle">Welcome to my personal portfolio</span>
+            <h1>Hi, I'm Kushal M <br>Turning Ideas into <span class="gradient-text">Digital Reality</span></h1>
+            <p>I'm a passionate web developer creating seamless, user-centric experiences. Connect with me to build
+                modern, responsive, and performance-driven websites.</p>
+            <div class="hero-btns">
+                <a href="#projects" class="btn btn-primary">View My Work <i class="fas fa-arrow-right"></i></a>
+                <a href="https://www.reddit.com/user/Safe-Relative8763/" target="_blank" class="btn btn-reddit">
+                    <i class="fab fa-reddit-alien"></i> Connect on Reddit
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about section-padding" id="about">
+        <div class="container about-grid">
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&q=80&w=800"
+                    alt="Developer focused on work">
+            </div>
+            <div class="about-text">
+                <h2>About Me</h2>
+                <h3 class="about-headline">Turning Vision into <span class="gradient-text">Interactive Reality</span>.
+                </h3>
+                <p>
+                    I am a Web Developer based in your location with over <strong>2+ years of experience</strong>
+                    working on both front-end and back-end development. I specialize in building responsive, scalable,
+                    and dynamic web solutions using modern technologies.
+                </p>
+                <p>
+                    From crafting simple landing pages to complex web applications, I focus on delivering clean code and
+                    exceptional user experiences.
+                </p>
+
+                <div class="reddit-highlight">
+                    <i class="fab fa-reddit"></i>
+                    <div>
+                        <span>Catch me on Reddit:</span>
+                        <a href="https://www.reddit.com/user/Safe-Relative8763/" target="_blank">u/Safe-Relative8763</a>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <h3>2+</h3>
+                        <p>Years Experience</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>5+</h3>
+                        <p>Projects Completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="experience section-padding" id="experience">
+        <div class="container">
+            <h2 class="section-title">Experience</h2>
+            <div class="timeline">
+                <!-- Freelance / Personal Projects -->
+                <div class="timeline-item">
+                    <div class="timeline-left">
+                        <h4>Freelance Web Developer</h4>
+                        <span class="date">2023 - Present</span>
+                    </div>
+                    <div class="timeline-right">
+                        <p class="role">Full Stack Developer</p>
+                        <ul>
+                            <li>Designed and developed responsive websites for local businesses, including a portfolio
+                                for a fitness center.</li>
+                            <li>Built a custom content management system for a tech review blog.</li>
+                            <li>Optimized legacy codebases for better performance and SEO rankings.</li>
+                        </ul>
+                        <div class="tech-tags">
+                            <span>HTML</span><span>CSS</span><span>JS</span><span>PHP</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Previous Role (Placeholder or Learning) -->
+                <div class="timeline-item">
+                    <div class="timeline-left">
+                        <h4>Web Design Intern</h4>
+                        <span class="date">2021 - 2023</span>
+                    </div>
+                    <div class="timeline-right">
+                        <p class="role">Junior Designer</p>
+                        <ul>
+                            <li>Assisted in the UI/UX design process for e-commerce platforms.</li>
+                            <li>Collaborated with senior developers to implement frontend components using React.</li>
+                        </ul>
+                        <div class="tech-tags">
+                            <span>React</span><span>Figma</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH STACK (Marquee) -->
+    <section class="tech-stack section-padding" id="skills">
+        <div class="container-fluid"> <!-- Full width for marquee -->
+            <h2 class="section-title">My Tech Stack</h2>
+            <div class="marquee-wrapper">
+                <div class="marquee-content">
+                    <!-- Original Set -->
+                    <div class="tech-card"><i class="devicon-html5-plain colored"></i>
+                        <p>HTML5</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-css3-plain colored"></i>
+                        <p>CSS3</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-javascript-plain colored"></i>
+                        <p>JavaScript</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-typescript-plain colored"></i>
+                        <p>TypeScript</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-php-plain colored"></i>
+                        <p>PHP</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-react-original colored"></i>
+                        <p>React</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-rust-original"></i>
+                        <p>Rust</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-nodejs-plain colored"></i>
+                        <p>Node.js</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-git-plain colored"></i>
+                        <p>Git</p>
+                    </div>
+
+                    <!-- Duplicate Set for Seamless Loop -->
+                    <div class="tech-card"><i class="devicon-html5-plain colored"></i>
+                        <p>HTML5</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-css3-plain colored"></i>
+                        <p>CSS3</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-javascript-plain colored"></i>
+                        <p>JavaScript</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-typescript-plain colored"></i>
+                        <p>TypeScript</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-php-plain colored"></i>
+                        <p>PHP</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-react-original colored"></i>
+                        <p>React</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-rust-original"></i>
+                        <p>Rust</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-nodejs-plain colored"></i>
+                        <p>Node.js</p>
+                    </div>
+                    <div class="tech-card"><i class="devicon-git-plain colored"></i>
+                        <p>Git</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="services section-padding" id="services">
+        <div class="container">
+            <h2 class="section-title">My Expertise</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="icon-box">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Web Development</h3>
+                    <p>Building responsive, accessible, and performant websites from scratch using modern best
+                        practices.</p>
+                </div>
+                <div class="service-card">
+                    <div class="icon-box">
+                        <i class="fas fa-pencil-ruler"></i>
+                    </div>
+                    <h3>UI Design</h3>
+                    <p>Designing clean and intuitive interfaces that ensure a smooth user experience across all devices.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <div class="icon-box">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Speed Optimization</h3>
+                    <p>Optimizing existing code to ensure lightning-fast load times and better search engine rankings.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <div class="icon-box">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Maintenance</h3>
+                    <p>Providing ongoing support, updates, and fixes to keep your digital presence running smoothly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="projects section-padding" id="projects">
+        <div class="container">
+            <h2 class="section-title">Recent Work</h2>
+            <div class="projects-grid">
+
+                <div class="project-card">
+                    <div class="project-img">
+                        <!-- Gym Image -->
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&auto=format&fit=crop"
+                            alt="Gym Portfolio">
+                    </div>
+                    <div class="project-info">
+                        <div class="project-tags">
+                            <span class="tag">HTML/CSS</span>
+                            <span class="tag">Design</span>
+                        </div>
+                        <h3>Gym Portfolio Site</h3>
+                        <p>A high-energy, responsive portfolio website for a local fitness center featuring class
+                            schedules and trainer profiles.</p>
+                        <a href="#" class="btn-link">View Project <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-img">
+                        <!-- Blog Image (Technology/Minimal) -->
+                        <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=800&auto=format&fit=crop"
+                            alt="Tech Blog">
+                    </div>
+                    <div class="project-info">
+                        <div class="project-tags">
+                            <span class="tag">CMS</span>
+                            <span class="tag">Blog</span>
+                        </div>
+                        <h3>Simple News Blog</h3>
+                        <p>A clean, minimalist news blog platform allowing users to read the latest updates in
+                            technology and lifestyle.</p>
+                        <a href="#" class="btn-link">View Project <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-img">
+                        <!-- Dashboard Image -->
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop"
+                            alt="Dashboard">
+                    </div>
+                    <div class="project-info">
+                        <div class="project-tags">
+                            <span class="tag">React</span>
+                            <span class="tag">Analytics</span>
+                        </div>
+                        <h3>Analytics Dashboard</h3>
+                        <p>A comprehensive dashboard for tracking website metrics and performance data in real-time.</p>
+                        <a href="#" class="btn-link">View Project <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <section class="contact-section section-padding" id="contact">
+        <div class="container">
+            <div class="contact-container">
+                <h2>Get In Touch</h2>
+                <p>Currently available for freelance opportunities. Let's discuss your next project.</p>
+                <div style="margin: 2rem 0;">
+                    <a href="mailto:kushal.reachout@hotmail.com" class="btn btn-primary"
+                        style="font-size: 1.2rem; padding: 16px 40px;">
+                        Contact Me <i class="fas fa-paper-plane"></i>
+                    </a>
+                </div>
+
+                <div class="contact-methods">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <span class="label">Email Me</span>
+                        <span>kushal.reachout@hotmail.com</span>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <span class="label">Call Me</span>
+                        <span>+91 77028 14574</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 MyPortfolio. Built with precision.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
